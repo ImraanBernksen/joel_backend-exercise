@@ -1,30 +1,48 @@
-const express = require("express");
-const cors = require("cors");
-const {message} = require('./app/middleware/message.js');
-const { errorHandling } = require("./app/middleware/ErrorHandling.js");
-  
+const express = require('express');
+// route
+const route = require('./controller');
+// cors
+const cors = require('cors');
+// port 
+const port = parseInt(process.env.PORT) || 3019;
+// Express app
 const app = express();
+// Middleware
+const {errorHandling} = require('./middleware/ErrorHandling');
+//
+const cookieParser = require('cookie-parser');
+/*
+express.json: setting the content-type to application/json
+bodyParser.urlencoded( {extended: true} ): Object will contain
+values of any type instead of just a string
+*/
+app.use((req, res, next)=> {
+        res.header('Access-Control-Allow-Origin', 'http://localhost:3019')
+        res.header("Access-Control-Allow-Credentials", "true")
+        res.header("Access-Control-Allow-Methods", "*")
+        res.header("Access-Control-Allow-Headers", "*")
+        next();
+});
+app.use(route);
+app.use(
+    cors(),
+    cookieParser(),
+    express.json,
+    express.urlencoded({extended: false})
+)
 
-var corsOptions = {
-  origin: "http://localhost:3019"
-};
-
-app.use(cors(corsOptions));
-
-app.use(express.json());
-
-app.use(express.urlencoded({ extended: true }));
-
+// Server is running
+app.listen(port, ()=> {
+    console.log(`Server is running`)
+});
+// Handling all errors
 app.use(errorHandling);
 
-app.get("/",message, (req, res) => {
-  res.send((`<h2>Welcome Mogamad Imraan Bernksen</h2>`));
-});
 
-require("./app/routes/user.routes.js")(app);
-require("./app/routes/product.routes.js")(app);
 
-const PORT = process.env.PORT || 3019;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
+
+
+
+
+
+
